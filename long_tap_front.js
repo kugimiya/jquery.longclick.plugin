@@ -16,6 +16,9 @@
       console.log('onEnd')
       self.css({backgroundColor: 'unset'})
     },
+    onContext: (event, self) => {
+      event.preventDefault();
+    },
     onStartDelay: 100,
     timeout: 500,
     mouseEvents: true
