@@ -25,6 +25,14 @@ $('.long-tap').longTap({
     onEnd: (event, self) => {
       console.log('onEnd')
     },
+    
+    // will be called when context menu displayed
+    onContext: (event, self) => {
+      console.log('onContext')
+    },
+    
+    // if true, quick select mode will be used (selecting without delay)
+    enableQuickSelect: true,
 
     // if true, touch events will be ignored
     mouseEvents: true,
