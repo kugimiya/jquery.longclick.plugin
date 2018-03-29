@@ -2,11 +2,14 @@
  * Title:   jquery.longclick.plugin
  * Link:    https://github.com/kugimiya/jquery.longclick.plugin
  * Author:  Andrey Goncharov, aka @kugimiya
- * Version: 1.1.1
+ * Version: 1.2.1
  * License: no license; use as you wish
  */
 
 (function ($) {
+
+    var _globalState = false;
+    var _selected = 0;
 
     var longTapInstanceLogic = function (options) {
         return function (key, self) {
@@ -16,6 +19,7 @@
                 onEndDelay = options.onEndDelay || 50,
                 mouseEvents = options.mouseEvents || false,
                 touchEvents = options.touchEvents || false,
+                enableQuickSelect = options.enableQuickSelect || false,
                 $self = $(self),
                 clickState = false,
                 commonState = false,
@@ -28,11 +32,19 @@
                 if (!commonState) {
                     if (options.onSuccess) {
                         options.onSuccess(event, $self);
+
+                        _selected += 1;
                     }
                 } else {
                     if (options.onReject) {
                         options.onReject(event, $self);
+
+                        _selected -= 1;
                     }
+                }
+
+                if (_selected == 0) {
+                    _globalState = false;
                 }
 
                 clickState = (!clickState);
@@ -41,7 +53,7 @@
                 callOnEnd(event);
             };
 
-            var onStartDelayCallback = function (event) {
+            var onStartDelayCallback = function (event, type) {
                 if (dummyClick) {
                     callOnEnd(event);
                     return;
@@ -55,14 +67,39 @@
                     clickState = (!clickState);
                 }
 
-                eventState = 'processing';
-                timer = setTimeout(timeoutCallback, timeout, event);
-                clearTimeout(onStartTimer);
+                if (type === 'timeout') {
+                    timeoutCallback
+                    eventState = 'processing';
+                    timer = setTimeout(timeoutCallback, timeout, event);
+                    clearTimeout(onStartTimer);
+                } else {
+                    timeoutCallback(event);
+                }
             };
+
+            var startUp = function (event, type) {
+                if (type === 'timeout') {
+                    onStartTimer = setTimeout(onStartDelayCallback, onStartDelay, event, type);
+                } else {
+                    onStartDelayCallback(event, type);
+                }
+            }
 
             var startEventHandler = function (event) {
                 eventState = 'start';
-                onStartTimer = setTimeout(onStartDelayCallback, onStartDelay, event);
+
+                if (enableQuickSelect) {
+                    if (!_globalState) {
+                        _globalState = true;
+
+                        startUp(event, 'timeout');
+                    } else {
+                        startUp(event, 'without timeout');
+                    }
+
+                } else {
+                    startUp(event, 'timeout');
+                }
             };
 
             var endEventHandlerLogic = function (event) {
@@ -76,7 +113,7 @@
 
                 if (canIEndThis) {
                     callOnEnd(event);
-                }
+                } timeoutCallback
 
                 clearTimeout(timer);
             }
@@ -100,6 +137,12 @@
                 eventState = 'ended';
             }
 
+            var callOnContext = function (event) {
+                if (options.onContext) {
+                    options.onContext(event, $self);
+                }
+            }
+
             if (mouseEvents && (!touchEvents)) {
                 $self.on('mousedown', startEventHandler);
                 $self.on('mouseup', endEventHandler);
@@ -110,6 +153,7 @@
                 $self.on('touchend', endEventHandler);
             }
 
+            $self.on('contextmenu', callOnContext);
             $self.on('click', registerClick);
         }
     }
@@ -119,6 +163,8 @@
         onSuccess,
         onReject,
         onEnd,
+        onContext,
+        enableQuickSelect,
         onStartDelay,
         onEndDelay,
         timeout,
@@ -129,3 +175,4 @@
     }
 
 })(jQuery);
+
