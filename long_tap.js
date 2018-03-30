@@ -2,20 +2,17 @@
  * Title:   jquery.longclick.plugin
  * Link:    https://github.com/kugimiya/jquery.longclick.plugin
  * Author:  Andrey Goncharov, aka @kugimiya
- * Version: 1.2.1
+ * Version: 1.3.1
  * License: no license; use as you wish
  */
 
 (function ($) {
 
-    var _globalState = false;
-    var _selected = 0;
-
-    var longTapInstanceLogic = function (options) {
+    var longTapInstanceLogic = function (options, instanceStorage) {
         return function (key, self) {
 
             var timeout = options.timeout || 500,
-                onStartDelay = options.onStartDelay || 0,
+                onStartDelay = options.onStartDelay || 100,
                 onEndDelay = options.onEndDelay || 50,
                 mouseEvents = options.mouseEvents || false,
                 touchEvents = options.touchEvents || false,
@@ -29,22 +26,32 @@
                 onStartTimer;
 
             var timeoutCallback = function (event) {
+                if (instanceStorage.globalState && dummyClick) {
+                    event.preventDefault();
+                    callOnEnd(event);
+                    return;
+                }
+
                 if (!commonState) {
                     if (options.onSuccess) {
-                        options.onSuccess(event, $self);
+                        options.onSuccess(event, $self, instanceStorage.selected);
 
-                        _selected += 1;
+                        instanceStorage.selected += 1;
                     }
                 } else {
                     if (options.onReject) {
-                        options.onReject(event, $self);
+                        options.onReject(event, $self, instanceStorage.selected);
 
-                        _selected -= 1;
+                        instanceStorage.selected -= 1;
                     }
                 }
 
-                if (_selected == 0) {
-                    _globalState = false;
+                if (instanceStorage.selected == 0) {
+                    instanceStorage.globalState = false;
+                }
+
+                if (!instanceStorage.globalState && instanceStorage.selected) {
+                    instanceStorage.globalState = true;
                 }
 
                 clickState = (!clickState);
@@ -68,7 +75,6 @@
                 }
 
                 if (type === 'timeout') {
-                    timeoutCallback
                     eventState = 'processing';
                     timer = setTimeout(timeoutCallback, timeout, event);
                     clearTimeout(onStartTimer);
@@ -78,23 +84,17 @@
             };
 
             var startUp = function (event, type) {
-                if (type === 'timeout') {
-                    onStartTimer = setTimeout(onStartDelayCallback, onStartDelay, event, type);
-                } else {
-                    onStartDelayCallback(event, type);
-                }
+                onStartTimer = setTimeout(onStartDelayCallback, onStartDelay, event, type);
             }
 
             var startEventHandler = function (event) {
                 eventState = 'start';
 
                 if (enableQuickSelect) {
-                    if (!_globalState) {
-                        _globalState = true;
-
-                        startUp(event, 'timeout');
-                    } else {
+                    if (instanceStorage.globalState) {
                         startUp(event, 'without timeout');
+                    } else {
+                        startUp(event, 'timeout');
                     }
 
                 } else {
@@ -113,7 +113,7 @@
 
                 if (canIEndThis) {
                     callOnEnd(event);
-                } timeoutCallback
+                }
 
                 clearTimeout(timer);
             }
@@ -122,7 +122,11 @@
                 setTimeout(endEventHandlerLogic, onEndDelay, event);
             };
 
-            var registerClick = function (event) {
+            var registerClick = function (event, type) {
+                if (instanceStorage.globalState && (type != 'touchmove')) {
+                    startUp(event, 'without timeout')
+                }
+
                 if (eventState == 'start') {
                     dummyClick = true;
                 }
@@ -143,6 +147,10 @@
                 }
             }
 
+            var touchMoveEventHandler = function (event) {
+                registerClick(event, 'touchmove');
+            }
+
             if (mouseEvents && (!touchEvents)) {
                 $self.on('mousedown', startEventHandler);
                 $self.on('mouseup', endEventHandler);
@@ -151,6 +159,7 @@
             if (touchEvents && (!mouseEvents)) {
                 $self.on('touchstart', startEventHandler);
                 $self.on('touchend', endEventHandler);
+                $self.on('touchmove', touchMoveEventHandler)
             }
 
             $self.on('contextmenu', callOnContext);
@@ -171,8 +180,10 @@
         mouseEvents,
         touchEvents
     }) {
-        return this.each(longTapInstanceLogic(options));
+        return this.each(longTapInstanceLogic(options, {
+            globalState: false,
+            selected: 0
+        }));
     }
 
 })(jQuery);
-
