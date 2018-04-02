@@ -1,4 +1,4 @@
-# Long-click (or tap) plugin for jQuery
+# Long-click (or tap) plugin for jQuery (yep)
 
 This plugin allows you to manipulate events like "long tap" or "long click".
 
