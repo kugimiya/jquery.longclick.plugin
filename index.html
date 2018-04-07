@@ -1,19 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        .long-tap.start {
+            border: 10px solid red;
+        }
+
+        .long-tap.success {
+            border: 10px solid green;
+        }
+
+        .panel {
+            display: none;
+            position: fixed;
+
+            top: 0px;
+            left: 0px;
+            right: 0px;
+            height: 55px;
+
+            padding-left: 10px;
+
+            background-color: #008069;
+            color: white;
+            font-weight: 900;
+            font-size: 22px;
+        }
+
+        .panel.enabled {
+            display: block;
+        }
+    </style>
 </head>
+
 <body>
+    <div class="panel">
+        <p>total selected:
+            <span class="count">0</span>
+        </p>
+    </div>
+
     <h1>I just wanna test writing jQuery plug-ins.</h1>
 
-    <p class="long-tap">Tap me</p>
-    <p class="long-tap">Or me!</p>
+    <p class="long-tap"> Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi dolor, sed quibusdam recusandae illum maiores itaque
+        veniam, temporibus esse qui nihil consequatur neque reiciendis autem possimus aliquid doloremque? Quidem, ipsam.
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Labore blanditiis temporibus atque amet mollitia pariatur,
+        tempore tempora officia, assumenda laborum quasi minus explicabo. Quisquam voluptatem laborum totam sapiente fugit
+        veniam. </p>
+    <p class="long-tap"> Lorem ipsum dolor sit amet consectetur, adipisicing elit. Tempora incidunt aliquam similique laborum dolorum. Iusto perferendis
+        ab ratione minima laborum officia. Consectetur aliquid cum magnam a aperiam, hic debitis iusto! </p>
+    <p class="long-tap"> Lorem ipsum dolor sit amet consectetur adipisicing elit. Earum mollitia labore voluptatem provident iste ducimus ab aspernatur
+        numquam explicabo exercitationem. Possimus magni impedit soluta molestias culpa reprehenderit ea, iure placeat?</p>
+    <p class="long-tap"> Lorem ipsum dolor sit, amet consectetur adipisicing elit. Pariatur soluta enim totam perferendis culpa cum voluptatem.
+        Ea ullam eum minus ab deserunt veritatis quae laboriosam a, doloribus nesciunt autem quisquam? </p>
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js"></script>
-    <script src="long_tap.js"></script>
+    <script src="jquery.js"></script>
+    <script src="long_tap_plugin.js"></script>
     <script src="long_tap_front.js"></script>
 </body>
+
 </html>

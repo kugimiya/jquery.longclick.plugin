@@ -5,48 +5,54 @@ This plugin allows you to manipulate events like "long tap" or "long click".
 For example:
 
 ```
-$('.long-tap').longTap({
-    // will called at the moment, when main timer started
-    onStart: (event, self) => {
-      console.log('onStart')
-    },
-
-    // will be called at the moment, when taps sets to active state
-    onSuccess: (event, self) => {
-      console.log('onSuccess')
-    },
-
-    // will be called at the moment, when taps sets to inactive state
-    onReject: (event, self) => {
-      console.log('onReject')
-    },
-
-    // will be called at the moment, when taps got ended
-    onEnd: (event, self) => {
-      console.log('onEnd')
-    },
-    
-    // will be called when context menu displayed
-    onContext: (event, self) => {
-      console.log('onContext')
-    },
-    
-    // if true, quick select mode will be used (selecting without delay)
-    enableQuickSelect: true,
-
-    // if true, touch events will be ignored
-    mouseEvents: true,
-
-    // if true, mouse events will be ignored
-    touchEvents: false,
-
-    // timeout, aka, main timer
+$('.long-tap').Longtap({
+    // longtap time
     timeout: 1000,
 
-    // delay before actual execution
-    onStartDelay: 100,
+    // delay before timeeout start
+    onStartDelay: 250,
 
-    // delay before a call onEnd
-    onEndDelay: 50
+    // onStart callback
+    onStart: (event, self) => {
+      console.log('on START');
+    },
+
+    // onSucces callback, fired when item got selected
+    onSuccess: (event, self) => {
+      console.log('on SUCC');
+    },
+
+    // onStop callback, fired when longtap cancelled
+    onStop: (event, self) => {
+      console.log('on STOP');
+    },
+
+    // onReject callback, fired when item got unselected
+    onReject: (event, self) => {
+      console.log('on REJECT');
+    },
+
+    // click event callback
+    onClick: (event, $self) => {
+      console.log('on CLICK');
+    },
+
+    // text select event callback
+    onSelect: (event, $self) => {
+      console.log('on SELECT');
+    },
+
+    // context menu event callback
+    onContext: (event, $self) => {
+      console.log('on CONTEXT');
+    },
+
+    // enable quick selection mode (no timeout after first selection)
+    // default true
+    allowQuickMode: true,
+
+    preventClick: true,
+    preventSelect: true,
+    preventContext: true
 });
 ```

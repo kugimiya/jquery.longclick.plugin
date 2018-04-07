@@ -1,26 +1,59 @@
 (() => {
-  $('.long-tap').longTap({
+  $('.long-tap').Longtap({
+    timeout: 1000,
+
+    onStartDelay: 250,
     onStart: (event, self) => {
-      console.log('onStart')
-      self.css({backgroundColor: 'red'})
+      self.addClass('start');
+
+      console.log('on START');
     },
+
     onSuccess: (event, self) => {
-      console.log('onSuccess')
-      self.css({border: '2px solid black'})
+      self.removeClass('start');
+      self.addClass('success');
+
+      console.log('on SUCC');
+
+      if (self.storage.selected > 0) {
+        if (!$('.panel').hasClass('enabled')) {
+          $('.panel').addClass('enabled');
+        }
+
+        $('.count').html(self.storage.selected);
+      }
     },
+
+    onStop: (event, self) => {
+      self.removeClass('start');
+
+      console.log('on STOP');
+    },
+
     onReject: (event, self) => {
-      console.log('onReject')
-      self.css({border: 'unset'})
+      self.removeClass('start');
+      self.removeClass('success');
+
+      console.log('on REJECT');
+
+      $('.count').html(self.storage.selected);
+
+      if (self.storage.selected == 0) {
+        $('.panel').toggleClass('enabled');
+      }
     },
-    onEnd: (event, self) => {
-      console.log('onEnd')
-      self.css({backgroundColor: 'unset'})
+
+    onClick: (event, $self) => {
+      console.log('on CLICK');
     },
-    onContext: (event, self) => {
-      event.preventDefault();
+
+    onSelect: (event, $self) => {
+      console.log('on SELECT');
     },
-    onStartDelay: 100,
-    timeout: 500,
-    mouseEvents: true
+
+    onContext: (event, $self) => {
+      console.log('on CONTEXT');
+    }
+
   });
 })();
