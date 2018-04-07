@@ -35,12 +35,13 @@
                 var isTapStart = false;
                 var isTapStartStamp = 0;
 
-                var clearingTimers = function (variable, variableClearCallback, event, stop) {
+                var clearingTimers = function (variable, clearCallback, event, stopFlag) {
                     if (!!variable) {
-                        variableClearCallback();
+                        clearCallback();
 
+                        // call onstop callback
                         if (args.onStop) {
-                            if (stop == true) {
+                            if (stopFlag) {
                                 args.onStop(event, $self);
                             }
                         }
@@ -62,8 +63,8 @@
                 };
 
                 var handlers = {
+                    // handle select or unselect
                     success: function (event) {
-
                         if (isSelected) {
                             pluginInstanceStorage.selected--;
 
@@ -71,6 +72,7 @@
                                 args.onReject(event, $self);
                             }
 
+                            // disable quick select mode
                             if (pluginInstanceStorage.selected == 0) {
                                 pluginInstanceStorage.quickMode = false;
                             }
@@ -81,6 +83,7 @@
                                 args.onSuccess(event, $self);
                             }
 
+                            // enable quick select mode
                             if (pluginInstanceStorage.allowQuickMode) {
                                 if (pluginInstanceStorage.selected > 0) {
                                     pluginInstanceStorage.quickMode = true;
@@ -94,39 +97,23 @@
                         timeouts.mainDelayClear();
                     },
 
+                    // thats stop longtap event
                     stop: function (event) {
                         clearingTimers(startTimer, timeouts.onStartDelayClear, event);
                         clearingTimers(timer, timeouts.mainDelayClear, event, true);
                     },
 
-                    clickOverride: function (event) {
-                        if (args.onClick) {
-                            args.onClick(event, $self);
-                        }
+                    // just an wrapper for killEvent, add firing callback
+                    override: function (callback, preventFlag) {
+                        return function(event) {
+                            if (callback) {
+                                callback(event, $self);
+                            }
 
-                        if (preventClick) {
-                            events.killEvent(event);
-                        }
-                    },
-
-                    selectOverride: function (event) {
-                        if (args.onSelect) {
-                            args.onSelect(event, $self);
-                        }
-
-                        if (preventSelect) {
-                            events.killEvent(event);
-                        }
-                    },
-
-                    contextOverride: function (event) {
-                        if (args.onContext) {
-                            args.onContext(event, $self);
-                        }
-
-                        if (preventContext) {
-                            events.killEvent(event);
-                        }
+                            if (preventFlag) {
+                                events.killEvent(event);
+                            }
+                        };
                     }
                 };
 
@@ -184,13 +171,19 @@
                     }
                 };
 
+                $self.on('click', 
+                    handlers.override(args.onClick, preventClick)
+                );
+
+                $self.on('contextmenu', 
+                    handlers.override(args.onContext, preventContext)
+                );
+
+                $self.on('selectstart',
+                    handlers.override(args.onSelect, preventSelect)
+                );
+
                 $self.on('touchmove', events.scrolling);
-
-                // todo: killevent moving from there to proxies
-                $self.on('click', handlers.clickOverride);
-                $self.on('contextmenu', handlers.contextOverride);
-                $self.on('selectstart', handlers.selectOverride);
-
                 $self.on('touchstart', events.tapStart);
                 $self.on('touchend', events.tapEnd);
 
