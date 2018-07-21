@@ -1,3 +1,4 @@
+# CODE IS DEPRECATED, USE AT UR OWN RISK, CODE IS TOTAL LEGACY
 # Long-click (or tap) plugin for jQuery (yep)
 
 This plugin allows you to manipulate events like "long tap" or "long click".
